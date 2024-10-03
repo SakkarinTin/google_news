@@ -2,13 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_news/app/data/models/custom_text_style_model.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-import '../app/data/models/environment.dart';
+import '../models/environment.dart';
 
 // App Information
 const String APP_NAME = 'Google News';
 const String VERSION_SOFTWARE = 'v1.0.0';
 const String DRAWER_MENU_HOME = 'Home';
-const String DRAWER_MENU_SAVED = 'Saved News';
+const String DRAWER_MENU_SAVED_NEWS = 'Saved News';
 
 // API Related
 final Duration REQ_TIMEOUT_API =

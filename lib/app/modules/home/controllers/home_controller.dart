@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:google_news/app/data/config/clone_result_data.dart';
 import 'package:google_news/utils/helpers.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/models/api_error_model.dart';
+import '../../../data/models/article_model.dart';
+import '../../../data/models/custom_text_style_model.dart';
 import '../../../data/models/news_model.dart';
 import '../../../data/providers/api_provider.dart';
 
@@ -19,10 +24,11 @@ class HomeController extends GetxController {
 
   final RxInt selectedCategoryIndex = 0.obs;
   final RxInt currentArticleIndex = 0.obs;
+  final RxBool isBookmarked = false.obs;
 
-  var news = News().obs; // Observes the News data
-  var errorMessage = ''.obs; // Observes the error message (if any)
-  var isLoading = true.obs; // Observes the loading state
+  var news = News().obs;
+  final RxString errorMessage = ''.obs;
+  final RxBool isLoading = true.obs;
 
   @override
   void onInit() {
@@ -46,8 +52,16 @@ class HomeController extends GetxController {
     debugPrint("Start fetchNews..");
     try {
       isLoading.value = true;
+
+      // Stuck with this part for the whole night, working now
       final result = await Get.find<ApiProvider>()
           .getNewsData(selectedCategoryIndex.value);
+
+      // Plan B is not needed now that ApiProvider is working fine
+      // Use clone data instead
+      // final result = News.fromJson(mockUpData)
+
+      debugPrint("result: $result");
 
       if (result is News) {
         news.value = result;
@@ -55,13 +69,8 @@ class HomeController extends GetxController {
 
         // Update UI elements with the fetched news data
         if (news.value.articles != null && news.value.articles!.isNotEmpty) {
-          final firstArticle = news.value.articles![0];
-          thumbnailUrl.value = firstArticle.images?['thumbnail'] ?? '';
-          fullArticleUrl.value = firstArticle.newsUrl ?? '';
-          title.value = firstArticle.title ?? 'Title is not found';
-          snippet.value = firstArticle.snippet ?? 'Snippet is not found';
-          publisher.value = firstArticle.publisher ?? 'Publisher is not found';
-          timestamp.value = firstArticle.timestamp ?? '';
+          final firstArticle = news.value.articles![currentArticleIndex.value];
+          updateArticle(firstArticle);
         }
       } else if (result is ApiError) {
         errorMessage.value = result.message;
@@ -74,8 +83,25 @@ class HomeController extends GetxController {
     }
   }
 
+  void updateArticle(Article? article) {
+    thumbnailUrl.value = article?.images?['thumbnail'] ?? '';
+    fullArticleUrl.value = article?.newsUrl ?? '';
+    title.value = article?.title ?? 'Title is not found';
+    snippet.value = article?.snippet ?? 'Snippet is not found';
+    publisher.value = article?.publisher ?? 'Publisher is not found';
+    timestamp.value = article?.timestamp ?? '';
+  }
+
+  void toggleBookmark() {
+    isBookmarked.value = isBookmarked.value!;
+    return;
+  }
+
+  // Change the category!
   void setSelectedCategoryIndex(int index) {
     selectedCategoryIndex.value = index;
+    currentArticleIndex.value = 0;
+    fetchNews(); // fetching news when change Category!
     return;
   }
 
@@ -140,6 +166,57 @@ class HomeController extends GetxController {
 
   void pressedNextButton() {
     debugPrint("Click next button!");
-    debugPrint("News: ${news.value}");
+    if (currentArticleIndex.value == news.value.articles!.length - 1) {
+      debugPrint("Last page!");
+      Get.snackbar(
+        '',
+        '',
+        titleText: Text('No more article',
+            style: CustomTextStyles.appBar(color: Colors.white)),
+        messageText: Text('You are at the last news article in this category.',
+            style: CustomTextStyles.normal(color: Colors.white)),
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    } else {
+      currentArticleIndex.value++;
+      updateArticle(news.value.articles?[currentArticleIndex.value]);
+    }
+  }
+
+  void pressedPreviousButton() {
+    debugPrint("Click previous button!");
+    if (currentArticleIndex.value == 0) {
+      debugPrint("First page!");
+      Get.snackbar(
+        '',
+        '',
+        titleText: Text('You are already on the first page.',
+            style: CustomTextStyles.appBar(color: Colors.white)),
+        // messageText: Text('You are at the first news article in this category.',
+        //     style: CustomTextStyles.normal(color: Colors.white)),
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    } else {
+      currentArticleIndex.value--;
+      updateArticle(news.value.articles?[currentArticleIndex.value]);
+    }
+  }
+
+  String getCurrentPage() {
+    return "${currentArticleIndex.value + 1}";
+  }
+
+  void saveArticle() {
+    debugPrint("Click save article!");
+    isBookmarked.value = !isBookmarked.value;
+    return;
   }
 }

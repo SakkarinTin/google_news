@@ -6,7 +6,7 @@ class Article {
   final String? publisher;
   final String? timestamp;
   final String? newsUrl;
-  final Map<String, String>? images;
+  final dynamic? images;
   final bool? hasSubnews;
   final List<Article>? subnews;
 

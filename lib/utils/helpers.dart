@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:google_news/config/constants.dart';
 import 'package:google_news/app/data/models/custom_text_style_model.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:http/http.dart' as http;
 
+import '../app/data/config/constants.dart';
 import '../app/data/models/environment.dart';
 import '../app/data/models/news_model.dart';
 

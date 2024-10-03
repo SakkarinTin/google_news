@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../config/constants.dart';
+import '../config/constants.dart';
 
 class CustomTextStyles {
   static TextStyle normal(

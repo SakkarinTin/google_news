@@ -36,7 +36,7 @@ class SharedPrefs {
 
   set newsDataList(Map<String, dynamic> value) {
     final jsonString = jsonEncode(value);
-    _sharedPrefs?.setString('device_data', jsonString);
+    _sharedPrefs?.setString('news_data', jsonString);
   }
 }
 

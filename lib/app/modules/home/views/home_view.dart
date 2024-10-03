@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
-import '../../../../config/constants.dart';
 import '../../../controllers/network_controller.dart';
+import '../../../data/config/constants.dart';
 import '../../../data/models/custom_text_style_model.dart';
 import '../../../../widgets/custom_drawer.dart';
 import '../controllers/home_controller.dart';
@@ -21,17 +21,35 @@ class HomeView extends GetView<HomeController> {
       canPop: false,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            'Today\'s News',
-            style: CustomTextStyles.appBar(isBold: true),
-          ),
+          title: Obx(() => Text(
+                "${CATEGORIES[controller.selectedCategoryIndex.value]} News",
+                style: CustomTextStyles.appBar(isBold: true),
+              )),
           centerTitle: true,
           // Add a widget to the right side of the AppBar to display offline status
           actions: [
             Obx(() {
               // Show "Offline" with red bullet if isOnline is false
               return Get.find<NetworkController>().isOnline.value
-                  ? const SizedBox.shrink() // Nothing when online
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.brightness_1,
+                            color: Colors.green,
+                            size: 10,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Online',
+                            style: CustomTextStyles.normal(
+                              color: Colors.green,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   : Padding(
                       padding: const EdgeInsets.only(right: 16.0),
                       child: Row(
@@ -62,10 +80,11 @@ class HomeView extends GetView<HomeController> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Category Row
             Padding(
               padding: const EdgeInsets.only(left: 16.0, top: 16.0),
               child: SizedBox(
-                height: 60,
+                height: 40,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: CATEGORIES.length,
@@ -115,6 +134,24 @@ class HomeView extends GetView<HomeController> {
                 ),
               ),
             ),
+
+            // Saved Article Icon
+            Padding(
+              padding: const EdgeInsets.only(right: 4.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Obx(() => IconButton(
+                        onPressed: () => controller.saveArticle(),
+                        icon: controller.isBookmarked.value
+                            ? const Icon(Icons.bookmark_added_rounded)
+                            : const Icon(Icons.bookmark_border_rounded),
+                      )),
+                ],
+              ),
+            ),
+
+            // Article Card, responsive both Landscape and Portrait
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -214,6 +251,13 @@ class HomeView extends GetView<HomeController> {
                                                       color:
                                                           Colors.grey.shade400),
                                                 ),
+                                                // TextSpan(
+                                                //   text: controller
+                                                //       .getFormattedDate(),
+                                                //   style: CustomTextStyles.small(
+                                                //       color:
+                                                //           Colors.grey.shade400),
+                                                // ),
                                               ],
                                             ),
                                           ),
@@ -306,6 +350,13 @@ class HomeView extends GetView<HomeController> {
                                                     color:
                                                         Colors.grey.shade400),
                                               ),
+                                              // TextSpan(
+                                              //   text: controller
+                                              //       .getFormattedDate(),
+                                              //   style: CustomTextStyles.small(
+                                              //       color:
+                                              //           Colors.grey.shade400),
+                                              // ),
                                             ],
                                           ),
                                         ),
@@ -320,6 +371,8 @@ class HomeView extends GetView<HomeController> {
                 ),
               ),
             ),
+
+            // Previous & Next Button Row
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
@@ -327,7 +380,7 @@ class HomeView extends GetView<HomeController> {
                 children: [
                   TextButton(
                     onPressed: () {
-                      debugPrint("Click previous button!");
+                      controller.pressedPreviousButton();
                     },
                     style: TextButton.styleFrom(
                       backgroundColor:
@@ -355,6 +408,12 @@ class HomeView extends GetView<HomeController> {
                       ),
                     ),
                   ),
+                  controller.isLoading.value
+                      ? const CircularProgressIndicator() // Show loading indicator
+                      : Obx(() => Text(
+                            '${controller.getCurrentPage()}   /   ${controller.news.value.articles?.length}',
+                            style: CustomTextStyles.small(),
+                          )),
                   TextButton(
                     onPressed: () {
                       controller.pressedNextButton();

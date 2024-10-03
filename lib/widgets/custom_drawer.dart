@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../config/constants.dart';
+import '../app/data/config/constants.dart';
 import '../app/data/models/custom_text_style_model.dart';
 import '../app/data/models/shared_pref.dart';
 
@@ -56,18 +56,20 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       setState(() {
                         widget.selectedMenu = DRAWER_MENU_HOME;
                       });
+                      debugPrint("Go to Home view");
                       Get.toNamed('/home');
                     },
                   ),
                   _buildMenuItem(
                     icon: Icons.bookmark_border_rounded,
-                    text: DRAWER_MENU_SAVED,
-                    isSelected: widget.selectedMenu == DRAWER_MENU_SAVED,
+                    text: DRAWER_MENU_SAVED_NEWS,
+                    isSelected: widget.selectedMenu == DRAWER_MENU_SAVED_NEWS,
                     onTap: () {
                       setState(() {
-                        widget.selectedMenu = DRAWER_MENU_SAVED;
+                        widget.selectedMenu = DRAWER_MENU_SAVED_NEWS;
                       });
                       debugPrint("Go to Saved News view");
+                      Get.toNamed('/saved-news');
                     },
                   ),
                 ],
